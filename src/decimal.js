@@ -12,6 +12,8 @@
 			
         }, options );
 		
+		var textBeforePaste;
+		
 		var deFormat = function(value) {
 			return value.replace(new RegExp(settings.groupSeparator, 'g'), '');
 		};
@@ -112,10 +114,29 @@
 			});
 			
 			input.blur(function(event) {
-				input.val(format(input.val()));
+				var newValue;
+				if (textBeforePaste) {
+					// unformat the pasted text
+					var pastedValue = deFormat(input.val());
+					if (isNaN(pastedValue)) {
+						// restore previous value
+						newValue = textBeforePaste;
+					}
+					else {
+						newValue = format(pastedValue)
+					}
+				}
+				else {
+					newValue = format(input.val())
+				}
+				
+				textBeforePaste = null;
+				input.val(newValue);
 			});
 			
-			
+			input.on("paste", function(event) {
+				textBeforePaste = input.val();
+			});
 			
 		});
  
